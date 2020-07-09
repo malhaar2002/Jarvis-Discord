@@ -9,7 +9,7 @@ from discord import FFmpegPCMAudio
 from os import system
 
 
-token = "NzMwMjYyMzcyNjk4MDMwMTgy.XwU76w.IODZUMsGw713osVWeuJ3w7ezyiM"
+token = "********"
 
 client = commands.Bot(command_prefix = "", case_insensitive = True)
 
