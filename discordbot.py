@@ -7,11 +7,15 @@ import os
 from discord.utils import get
 from discord import FFmpegPCMAudio
 from os import system
+from gtts import gTTS
+import playsound
 
 
-token = "********"
+token = "*********"
 
 client = commands.Bot(command_prefix = "", case_insensitive = True)
+
+member_list = ["Malheur#9174", "Yss#1678", "Zeus#2534", "rishitgupta#6858", "Yash Vasdev#2009", "OrangeSannin0811#5360", "OrangeSannin#4069", "nandos#2619", "#RoboticToast#0001", "CosJune#8466", "niRRu#6437"]
 
 @client.event
 async def on_ready():
@@ -98,29 +102,38 @@ async def f(ctx):
 
 @client.command()
 async def google(ctx, *, question):
+    global links
+    links = []
     query = question
     for j in search(query, tld="co.in", num=10, stop=3, pause=2):
         await ctx.send(j)
+        links.append(j)
 
 @client.command()
 async def join(ctx):
     channel = ctx.author.voice.channel
-    try:
-        await channel.connect()
-    except:
-        await ctx.send("Are you connected to voice channel?")
+    await channel.connect()
+
 
 @client.command()
 async def leave(ctx):
     await ctx.voice_client.disconnect()
 
-@client.command(pass_context=True, brief="This will play a song 'play [url]'", aliases=['pl'])
+@client.command()
+async def playno(ctx, linkno: int):
+    if linkno == 1:
+        await play(ctx, links[0])
+    elif linkno == 2:
+        await play(ctx, links[1])
+    elif linkno == 3:
+        await play(ctx, links[2])
+    else:
+        await ctx.send("Enter 1, 2 or 3 according to your choice number")
+
+@client.command(pass_context=True, brief="This will play a song 'play [url]'")
 async def play(ctx, url: str):
     channel = ctx.author.voice.channel
-    try:
-        await channel.connect()
-    except:
-        await ctx.send("Are you connected to the voice channel?")
+    await channel.connect()
     song_there = os.path.isfile("song.mp3")
     try:
         if song_there:
@@ -167,14 +180,120 @@ async def volume(ctx, *, volume):
     voice.source.volume = float(volume)
 
 @client.command()
-async def move(ctx,member:discord.Member=None):
-    if ctx.author.voice and ctx.author.voice.channel:
-        channel = ctx.author.voice.channel
-    else:
-        await ctx.send("You are not connected to voice!")
-    if not member:
-        await ctx.send("Who am I trying to move? Use move @user")
-    await member.move_to(channel)
+async def speak(ctx, *, message: str, file = "ques.mp3"):
+    tts = gTTS(text = message, lang = "sv")
+    filename = file
+    tts.save(filename)
+    await join(ctx)
+    voice = get(client.voice_clients, guild=ctx.guild)
+    voice.play(discord.FFmpegPCMAudio(filename))
+    voice.volume = 100
+    voice.is_playing()
+
+@client.command()
+async def message_count(ctx, channel: discord.TextChannel=None):
+
+    channel = channel or ctx.channel
+
+    malhaar = 0
+    chibu = 0
+    vibhu = 0
+    rishit = 0
+    vasdev = 0
+    rushil = 0
+
+    count = 0
+    async for message in channel.history(limit= 10):
+        await ctx.send(message.author)
+        if message.author == "Malheur":
+            malhaar += 1
+        elif message.author == "Yss#1678":
+            chibu += 1
+        elif message.author == "rishitgupta#6858":
+            rishit += 1
+        elif message.author == "Yash Vasdev#2009":
+            vasdev += 1
+        elif message.author == "OrangeSannin0811#5360" or message.author == "OrangeSannin#4069":
+            rushil += 1
+        count += 1
+
+        messagePerPerson = {malhaar: "Malhaar", chibu: "Chibu", vibhu: "Vibhu", rishit: "Rishit", vasdev: "Vasdev", rushil: "Rushil"}
+
+    await ctx.send("There were a total of {} messages in {}".format(count, channel.mention))
+    await ctx.send("Number of messages sent by each member:")
+    for i in messagePerPerson:
+        await ctx.send(f"{messagePerPerson[i]}: {i}\n")
+    #await ctx.send(f"Malhaar: {malhaar}\nChibu: {chibu}\nVibhu: {vibhu}\nRishit: {rishit}\nVasdev: {vasdev}\nRushil: {rushil}")
+    await ctx.send(f"{messagePerPerson.get(max(messagePerPerson))} sent the max number of messages. Congrats {messagePerPerson.get(max(messagePerPerson))}! You are the Vela-est of the Vele-est Log.")
+
+# Hangman variables
+word = ""
+guessesLeft = 6
+playingHangman = False
+blanks = []
+guessedLetters=[]
+lettersFound = 0
+
+@client.command()
+async def hangman(ctx):
+    await ctx.send("Assuming and hoping you meant the game and not the death penalty, let's go!")
+    global playingHangman, word, guessesLeft, blanks, lettersFound, guessedLetters
+    lines = []
+    with open("hangmanwords.txt", "r") as f:
+        lines = f.readlines()
+    random_line_num = random.randrange(0, len(lines))
+    word = lines[random_line_num]
+    blanks = []
+    guessedLetters = []
+    lettersFound = 0
+    guessesLeft = 6
+    playingHangman = True
+    for i in range(1, len(word)):
+        blanks .append("-")
+
+    await ctx.send("Welcome to Hangman.")
+    space = " "
+    await ctx.send(f"You have {str(guessesLeft)} guesses to get all of the letters in the word. To guess a letter, type guess letter \n {space.join(blanks)}")
+
+@client.command()
+async def guess(ctx, guess):
+    global playingHangman
+    global word
+    global guessesLeft
+    global blanks
+    global lettersFound
+    global guessedLetters
+    if playingHangman is True:
+        if str.isalpha(guess) and len(guess) is 1 and str.lower(guess) not in guessedLetters:
+            if str.lower(guess) in word:
+                await ctx.send(guess + " is in the word.  Good job!")
+                for i in range(0, len(word)):
+                    if word[i] == str.lower(guess):
+                        blanks[i] = str.lower(guess)
+                        lettersFound += 1
+
+            else:
+                await ctx.send(guess + " is NOT in the word.")
+                guessesLeft -= 1
+
+            guessedLetters.append(str.lower(guess))
+            await ctx.send(" ".join(blanks))
+            await ctx.send("Guessed letters: " + " ".join(guessedLetters))
+            await ctx.send("Guesses left: " + str(guessesLeft))
+
+            if guessesLeft == 0:
+                await ctx.send("No guesses left. You lose!")
+                await ctx.send(f"The word was: {word}")
+                playingHangman = False
+            if lettersFound == len(word)-1:
+                await ctx.send("You guessed all the letters! You've won! The word was: " + word)
+                playingHangman = False
+
+        else:
+            await ctx.send("ERROR: You can only guess with single letters that haven't already been entered.")
+            await ctx.send("Guessed letters: " + " ".join(guessedLetters))
+
+    else: await ctx.send("Start a game of Hangman before trying to guess a letter!")
 
 
 client.run(token)
