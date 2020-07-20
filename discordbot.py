@@ -15,6 +15,8 @@ token = "*********"
 
 client = commands.Bot(command_prefix = "", case_insensitive = True)
 
+client.remove_command("help")
+
 member_list = ["Malheur#9174", "Yss#1678", "Zeus#2534", "rishitgupta#6858", "Yash Vasdev#2009", "OrangeSannin0811#5360", "OrangeSannin#4069", "nandos#2619", "#RoboticToast#0001", "CosJune#8466", "niRRu#6437"]
 
 @client.event
@@ -22,8 +24,18 @@ async def on_ready():
     print("Ready, sir.")
 
 @client.command()
-async def jarvis(ctx):
-    await ctx.send("Hey there, I'm Jarvis.\nI'm a bot who was made by Malhaar to satisfy your meme needs, because baaki needs toh tumaari puri hone se rahi.\nTry typing 8ball and a yes or no question.\nType clear and a number and I will delete that number of messages (I know, I have more power than y'all do)\nTry typing bruh\nIf any of my words ever offend you, they are working correctly!")
+async def help(ctx):
+    await ctx.send("Hey there, I'm J.A.R.V.I.S.\nI'm a bot who was made by Malhaar to satisfy your meme needs, because baaki needs toh tumaari puri hone se rahi.\nI can do the following:\nWrite 8ball and ask a yes or no question.\nType clear and a number and I will delete that number of messages (I know, I have more power than y'all do)\nI respond to a number of keywords including 'bye', 'creator', 'nice'/'noice', 'damn'/'dayum', 'genius', 'fortnite', 'chemistry', 'F', 'thanks' and 'kill (someone)'\nI can Google stuff and show you the search results. Just write 'google' followed by your search query\nI can join the voice channel and play music (HOW COOL IS THAT?!). Just write 'play' followed by the YouTube link or search it with 'google' and write playno 1/2/3. You can also use commands 'pause', 'resume', 'stop' and 'volume (number between 0 and 1)'\nI can join the voice channel and speak in 78 different accents (Jealous?). Type speak followed by the speech string.\nTo start a game of Hangman, type Hangman\nDon't get jealous, I'm just a bot!\n.\n.\n.\n.\n.....for now.")
+
+@client.command(aliases = ["Jarvis?"])
+async def Jarvis(ctx):
+    await ctx.send("Yes sir?")
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def kick(ctx, user: discord.Member):
+    await ctx.send(f'The Kicking Hammer Has Awoken! {user.name} Has Been Banished')
+    await ctx.guild.kick(user)
 
 @client.command()
 async def ping(ctx):
@@ -31,7 +43,7 @@ async def ping(ctx):
 
 @client.command(aliases = ['8ball'])
 async def _8ball(ctx, *, question):
-     responses = ["Most certainly.", "Lmao no", "Duhh", "You may not wanna hear the answer", "Maybeee", "You think?", "Obviously", "Uhh...sure!", "For sure", "My sources say yeah, but they also said lockdown would get over by May", "Don't count on it", "You can count on it", "That's a dumb question, don't you think?", "In your dreams", "Yeah and I'm the pope", "YESSS", "Not a doubt", "Decidedly so", "You wish", "Sure why not", "You need to ask?!", "The odds aren't good", "Bet on it", "I think you already know.", "I don't wanna be the one to tell you.", "Outlook not so good", "Definitely!", "Not in a million years.", "HAHAHAHA Now ask a real question", "Oh dear god NO", "Totally", "You gotta be kidding me", "I mean....", "HELL YEAH", "I think so"]
+     responses = ["Most certainly.", "Lmao no", "Duhh", "You may not wanna hear the answer", "Maybeee", "Obviously", "Uhh...sure!", "For sure", "My sources say yeah, but they also said lockdown would get over by May", "Don't count on it", "You can count on it", "That's a dumb question, don't you think?", "In your dreams", "Yeah and I'm the pope", "YESSS", "Not a doubt", "Decidedly so", "You wish", "Sure why not", "You need to ask?!", "The odds aren't good", "Bet on it", "I think you already know.", "I don't wanna be the one to tell you.", "Outlook not so good", "Definitely!", "Not in a million years.", "HAHAHAHA Now ask a real question", "Oh dear god NO", "Totally", "You gotta be kidding me", "I mean....", "HELL YEAH", "I think so"]
      await ctx.send(f"{random.choice(responses)}")
 
 @client.command()
@@ -55,7 +67,7 @@ async def noice(ctx):
         picture = discord.File(f)
         await ctx.send(file = picture)
 
-@client.command()
+@client.command(aliases = ["goodbye"])
 async def bye(ctx):
     with open(r"C:\Users\Malhaar\Desktop\Python Projects\Discord bot\Images\tussinajao.gif", 'rb') as f:
         picture = discord.File(f)
@@ -73,10 +85,6 @@ async def genius(ctx):
     with open(random.choice(bruh_responses), 'rb') as f:
         picture = discord.File(f)
         await ctx.send(file = picture)
-
-@client.command(aliases = ["bhenchod", "mdrchd", "maadarchod", "bhosadike", "bsdke", "chutiya", "hutiya"])
-async def behenchod(ctx):
-    await ctx.send("OYE GAAL NI KADNI\nJust kidding, fire away.")
 
 @client.command(aliases = ["fortnite?"])
 async def fortnite(ctx):
@@ -115,12 +123,22 @@ async def join(ctx):
     await channel.connect()
 
 
-@client.command()
+@client.command(aliases = ["nikal"])
 async def leave(ctx):
+
     await ctx.voice_client.disconnect()
+
+    dir_name = r"C:\Users\Malhaar\Desktop\Python Projects\Discord bot\jarvis-discord1"
+    test = os.listdir(dir_name)
+
+    for item in test:
+        if item.endswith(".mp3"):
+            os.remove(os.path.join(dir_name, item))
+
 
 @client.command()
 async def playno(ctx, linkno: int):
+
     if linkno == 1:
         await play(ctx, links[0])
     elif linkno == 2:
@@ -132,15 +150,10 @@ async def playno(ctx, linkno: int):
 
 @client.command(pass_context=True, brief="This will play a song 'play [url]'")
 async def play(ctx, url: str):
+
     channel = ctx.author.voice.channel
     await channel.connect()
     song_there = os.path.isfile("song.mp3")
-    try:
-        if song_there:
-            os.remove("song.mp3")
-    except PermissionError:
-        await ctx.send("Wait for the current playing music end or use the 'stop' command")
-        return
     await ctx.send("Getting everything ready, playing audio soon")
     print("Someone wants to play music let me get that ready for them...")
     global voice
@@ -159,7 +172,7 @@ async def play(ctx, url: str):
         if file.endswith(".mp3"):
             os.rename(file, 'song.mp3')
     voice.play(discord.FFmpegPCMAudio("song.mp3"))
-    voice.volume = 100
+    voice.volume = 50
     voice.is_playing()
 
 @client.command()
@@ -181,50 +194,15 @@ async def volume(ctx, *, volume):
 
 @client.command()
 async def speak(ctx, *, message: str, file = "ques.mp3"):
-    tts = gTTS(text = message, lang = "sv")
+    speechString = message.split(";")
+    tts = gTTS(text = speechString[0], lang = speechString[1])
     filename = file
     tts.save(filename)
     await join(ctx)
     voice = get(client.voice_clients, guild=ctx.guild)
     voice.play(discord.FFmpegPCMAudio(filename))
-    voice.volume = 100
+    voice.volume = 50
     voice.is_playing()
-
-@client.command()
-async def message_count(ctx, channel: discord.TextChannel=None):
-
-    channel = channel or ctx.channel
-
-    malhaar = 0
-    chibu = 0
-    vibhu = 0
-    rishit = 0
-    vasdev = 0
-    rushil = 0
-
-    count = 0
-    async for message in channel.history(limit= 10):
-        await ctx.send(message.author)
-        if message.author == "Malheur":
-            malhaar += 1
-        elif message.author == "Yss#1678":
-            chibu += 1
-        elif message.author == "rishitgupta#6858":
-            rishit += 1
-        elif message.author == "Yash Vasdev#2009":
-            vasdev += 1
-        elif message.author == "OrangeSannin0811#5360" or message.author == "OrangeSannin#4069":
-            rushil += 1
-        count += 1
-
-        messagePerPerson = {malhaar: "Malhaar", chibu: "Chibu", vibhu: "Vibhu", rishit: "Rishit", vasdev: "Vasdev", rushil: "Rushil"}
-
-    await ctx.send("There were a total of {} messages in {}".format(count, channel.mention))
-    await ctx.send("Number of messages sent by each member:")
-    for i in messagePerPerson:
-        await ctx.send(f"{messagePerPerson[i]}: {i}\n")
-    #await ctx.send(f"Malhaar: {malhaar}\nChibu: {chibu}\nVibhu: {vibhu}\nRishit: {rishit}\nVasdev: {vasdev}\nRushil: {rushil}")
-    await ctx.send(f"{messagePerPerson.get(max(messagePerPerson))} sent the max number of messages. Congrats {messagePerPerson.get(max(messagePerPerson))}! You are the Vela-est of the Vele-est Log.")
 
 # Hangman variables
 word = ""
