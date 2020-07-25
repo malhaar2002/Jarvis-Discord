@@ -9,11 +9,18 @@ from discord import FFmpegPCMAudio
 from os import system
 from gtts import gTTS
 import playsound
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
 
-
-token = "*********"
+token = "NzMwMjYyMzcyNjk4MDMwMTgy.XwdL1g.c2SkKAHU3Fmu7GCOd0uOT1OvRD8"
 
 client = commands.Bot(command_prefix = "", case_insensitive = True)
+
+chatbot = ChatBot("Jarvis")
+
+trainer = ChatterBotCorpusTrainer(chatbot)
+
+trainer.train("chatterbot.corpus.english")
 
 client.remove_command("help")
 
@@ -135,21 +142,36 @@ async def leave(ctx):
         if item.endswith(".mp3"):
             os.remove(os.path.join(dir_name, item))
 
+@client.command()
+async def play(ctx, *, question):
+
+    global links
+    links = []
+    query = question + " song youtube"
+    for j in search(query, tld="co.in", num=10, stop=3, pause=2):
+        links.append(j)
+
+    for i in links:
+        if "https://www.youtube.com/" in j:
+            song = j
+            break
+
+    await playurl(ctx, song)
 
 @client.command()
 async def playno(ctx, linkno: int):
 
     if linkno == 1:
-        await play(ctx, links[0])
+        await playurl(ctx, links[0])
     elif linkno == 2:
-        await play(ctx, links[1])
+        await playurl(ctx, links[1])
     elif linkno == 3:
-        await play(ctx, links[2])
+        await playurl(ctx, links[2])
     else:
         await ctx.send("Enter 1, 2 or 3 according to your choice number")
 
 @client.command(pass_context=True, brief="This will play a song 'play [url]'")
-async def play(ctx, url: str):
+async def playurl(ctx, url: str):
 
     channel = ctx.author.voice.channel
     await channel.connect()
@@ -211,6 +233,7 @@ playingHangman = False
 blanks = []
 guessedLetters=[]
 lettersFound = 0
+hangmanMaster = ""
 
 @client.command()
 async def hangman(ctx):
@@ -241,6 +264,8 @@ async def guess(ctx, guess):
     global blanks
     global lettersFound
     global guessedLetters
+    global hangmanMaster
+
     if playingHangman is True:
         if str.isalpha(guess) and len(guess) is 1 and str.lower(guess) not in guessedLetters:
             if str.lower(guess) in word:
@@ -259,7 +284,7 @@ async def guess(ctx, guess):
             await ctx.send("Guessed letters: " + " ".join(guessedLetters))
             await ctx.send("Guesses left: " + str(guessesLeft))
 
-            if guessesLeft == 0:
+            if guessesLeft < 1:
                 await ctx.send("No guesses left. You lose!")
                 await ctx.send(f"The word was: {word}")
                 playingHangman = False
@@ -267,11 +292,38 @@ async def guess(ctx, guess):
                 await ctx.send("You guessed all the letters! You've won! The word was: " + word)
                 playingHangman = False
 
+                hangmanMaster = ctx.message.author.name
+
+                await ctx.send(f"KNEEL DOWN BEFORE {hangmanMaster}, FOR HE IS THE NEW **HANGMAN MASTER**")
+                with open(r"C:\Users\Malhaar\Desktop\Python Projects\Discord bot\Images\Arrow the Fallen.jpg", 'rb') as f:
+                    picture = discord.File(f)
+                    await ctx.send(file = picture)
+                await ctx.send(f"You can run, but you can't hide.")
+                await ctx.send(f"All that is left to do is beg for mercy.")
+                await ctx.send("""Your majesty, you man mute someone by typing "banish @user @Roulette victim" """)
+
+
         else:
             await ctx.send("ERROR: You can only guess with single letters that haven't already been entered.")
             await ctx.send("Guessed letters: " + " ".join(guessedLetters))
 
     else: await ctx.send("Start a game of Hangman before trying to guess a letter!")
+
+@client.command()
+async def banish(ctx, peasant: discord.Member , role: discord.Role):
+    global hangmanMaster
+    if ctx.message.author.name == hangmanMaster:
+        await peasant.add_roles(role)
+        hangmanMaster = ""
+    else:
+        await ctx.send("You are not the Hangman Master peasant")
+
+
+@client.command(aliases = ["!"])
+async def chat(ctx, *, phrase):
+      bot_input = chatbot.get_response(phrase)
+      await ctx.send(bot_input)
+
 
 
 client.run(token)
