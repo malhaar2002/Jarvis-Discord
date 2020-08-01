@@ -12,7 +12,7 @@ import playsound
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 
-token = "NzMwMjYyMzcyNjk4MDMwMTgy.XwdL1g.c2SkKAHU3Fmu7GCOd0uOT1OvRD8"
+token = "**********"
 
 client = commands.Bot(command_prefix = "", case_insensitive = True)
 
