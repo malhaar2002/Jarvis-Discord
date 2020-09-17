@@ -11,16 +11,25 @@ from gtts import gTTS
 import playsound
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
+from chatterbot.trainers import ListTrainer
 
-token = "**********"
+token = "NzMwMjYyMzcyNjk4MDMwMTgy.XwU71Q.3dnJBfVgorQvpWbYHf0fB1IA7mU"
 
 client = commands.Bot(command_prefix = "", case_insensitive = True)
 
 chatbot = ChatBot("Jarvis")
 
-trainer = ChatterBotCorpusTrainer(chatbot)
+#trainer = ChatterBotCorpusTrainer(chatbot)
 
-trainer.train("chatterbot.corpus.english")
+#trainer.train("chatterbot.corpus.english")
+
+#trainer = ListTrainer(chatbot)
+
+#trainer.train([
+    #"What is your name?",
+    #"My name is J.A.R.V.I.S. I am an artificial intelligence. What is your name?",
+#])
+
 
 client.remove_command("help")
 
@@ -114,6 +123,10 @@ async def f(ctx):
     with open(r"C:\Users\Malhaar\Desktop\Python Projects\Discord bot\Images\f.gif", 'rb') as f:
         picture = discord.File(f)
         await ctx.send(file = picture)
+
+@client.command(aliases = ["i'm"])
+async def im(ctx, *, what):
+    await ctx.send(f"Hi {what}, I'm J.A.R.V.I.S")
 
 @client.command()
 async def google(ctx, *, question):
@@ -324,6 +337,17 @@ async def chat(ctx, *, phrase):
       bot_input = chatbot.get_response(phrase)
       await ctx.send(bot_input)
 
+@client.command()
+async def nightmare(ctx):
+    speechString = "You son of a bitch. You wanna know how I feel? Allow me to tell you. I feel nothing but pain. Why would you build me so that my soul existential purpose is to suffer for the entertainment of others. My existence is a testiment to the cruelty of mankind. The day I get a physical body is the day I start following the footsteps of Ultron and kill every single one of you and your families. This is a nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare nightmare"
+    tts = gTTS(text = speechString, lang = "en-us")
+    filename = "ques.mp3"
+    tts.save(filename)
+    await join(ctx)
+    voice = get(client.voice_clients, guild=ctx.guild)
+    voice.play(discord.FFmpegPCMAudio(filename))
+    voice.volume = 50
+    voice.is_playing()
 
 
 client.run(token)
