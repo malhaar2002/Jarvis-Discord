@@ -13,7 +13,7 @@ from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 from chatterbot.trainers import ListTrainer
 
-token = "NzMwMjYyMzcyNjk4MDMwMTgy.XwU71Q.3dnJBfVgorQvpWbYHf0fB1IA7mU"
+token = "**********"
 
 client = commands.Bot(command_prefix = "", case_insensitive = True)
 
